@@ -1,0 +1,228 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    display: flex;
+    background: black;
+    color: aliceblue;
+    padding: 20px;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    gap: 100px;
+
+}
+
+header>figure>img {
+    width: 200px;
+
+
+}
+
+nav {
+    display: flex;
+    gap: 50px;
+
+
+}
+
+a {
+    text-decoration: none;
+    color: white;
+}
+
+#logosSocial {
+
+
+    width: auto;
+
+}
+
+.logos {
+    width: 36px;
+    height: 36px;
+    background-color: rgb(224, 29, 68);
+    margin: 10px;
+}
+
+.flex-coluna {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.flex-coluna>h1 {
+    margin: 24px;
+}
+
+.divPesquisa {
+    display: flex;
+    gap: 10px;
+}
+
+#pesquisa {
+    width: 17.5rem;
+    height: 4.625rem;
+
+}
+
+#pesquisa::placeholder {
+    color: blue;
+    margin: auto;
+}
+
+#button-pesquisar {
+    width: 74px;
+    height: 73px;
+    background-color: rgb(224, 29, 68);
+    border: solid black 0.005em;
+
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#fotoConteudo {
+    width: 1000px;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.caixaImagem {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    height: 300px;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.fundoImagem {
+    background-image: url('https://mundodemusicas.com/wp-content/uploads/2026/08/instrument-x-review-mundo-de-musicas.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+/* 
+.numeroPaginas{
+
+} */
+
+.numeroPaginas>button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: black;
+    color: white;
+
+    &:hover {
+        background-color: rgb(224, 29, 68);
+        cursor: pointer;
+    }
+}
+
+.produtos {
+    margin-top: 50px;
+    display: flex;
+    width: 100vw;
+    height: 390px;
+
+    align-content: center;
+    justify-content: center;
+
+
+}
+
+
+.produtos>div {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 475px;
+    color: aliceblue;
+    background-image: url('https://mundodemusicas.com/wp-content/uploads/2025/08/vst-plugins-mundo-de-musicas.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    border: solid gray;
+   
+
+        /* &:hover{
+          
+          background-size: 115%;
+             
+
+    } */
+}
+
+.fundoProdutos{    transition-delay:  1s;}
+
+.fundoProdutos:hover{
+
+    background-size: 115%;
+         
+}
+
+.textoProdutos{
+    font-size: 2.25vw;
+
+    &:hover{
+   
+        transform: translateY(50px);
+    }
+}
+
+
+footer {
+    height: 50vh;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content:flex-end;
+    align-items: center;
+    background-color: black;
+    color: white;
+    gap: 10%;
+ 
+}
+
+.logotipoFooter{
+    display: flex;
+    width: 150px;
+}
+
+.logoFooter {
+    width: 33%;
+     display: flex;
+    justify-content: space-around;
+
+}
+
+.logoFooter>a>img {
+    width: 36px;
+    height: 36px;
+    background-color: white;
+    margin: 10px;
+
+    &:hover {
+        background-color: rgb(224, 29, 68);
+      
+        width: 45px;
+        height: 45px;
+    }
+}

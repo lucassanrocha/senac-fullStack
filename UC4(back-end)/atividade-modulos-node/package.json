@@ -1,0 +1,16 @@
+{
+  "name": "atividade-modulos-node",
+  "version": "1.0.0",
+  "description": "Atividades práticas de modularização no Node.js",
+  "main": "src/esm/app.js",
+  "private": true,
+  "scripts": {
+    "start": "node src/esm/app.js",
+    "start:esm": "node --watch src/esm/app.js",
+    "start:commonjs": "node --watch src/commonjs/app.cjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module"
+}

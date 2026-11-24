@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br
+<head>
+    <meta charset=" UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- =====REMIXICON======= -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css">
+
+<!-- =====CSS======= -->
+<link rel="stylesheet" href="../assets/css/login.css">
+
+<!-- =====Java Script======= -->
+<script src="../assets/js/cadastro.js" defer></script>
+<script src="../assets/js/register.js" defer></script>
+
+
+<title>Cadastro</title>
+
+</head>
+
+<body>
+    <main class="login">
+
+        <img src="../assets/images/fundo3.gif" alt="" class="login__img">
+
+        <form action="" class="login__form" id="login-form"">
+            <h1 class="login__title">Cadastro</h1>
+
+            <div class="login__content">
+
+                <div class="login__box">
+
+                    <i class="ri-user-line login__icon"></i>
+
+                    <div class="login__box-input">
+                        <input type="email" id="cadastro-email" class="login__input" required placeholder="">
+                        <label for="cadastro-email" class="login__label">E-mail</label>
+                    </div>
+
+                </div>
+
+                <div class="login__box">
+
+                    <i class="ri-lock-line login__icon"></i>
+
+                    <div class="login__box-passoword">
+                        <input type="password" id="cadastro-password" class="login__input" required placeholder="" autocomplete="true">
+                        <label for="cadastro-password" class="login__label">Passoword</label>
+                    </div>
+                    <i class="ri-eye-off-line login__icon" id="login-eye-cadastro"></i>
+                </div>
+
+                <div class="login__box">
+
+                    <i class="ri-lock-line login__icon"></i>
+
+                    <div class="login__box-passoword">
+                        <input type="password" id="cadastro-password-confirm" class="login__input" required placeholder="">
+                        <label for="cadastro-password-confirm" class="login__label">Repeat Passoword</label>
+                    </div>
+                    <i class="ri-eye-off-line login__icon" id="login-eye-confirm"></i>
+                </div>
+           
+
+                <button type="submit" class="login__button">Register</button>
+
+                <p class="login__resgister">
+                    Have an acconut?
+                    <a href="../index.html">Login</a>
+                </p>
+            </div>
+
+        </form>
+    </main>
+
+</body>
+
+</html>

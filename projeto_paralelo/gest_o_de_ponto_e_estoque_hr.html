@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PontoSync & Gestão HR - Protótipo Interativo</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo / Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-600 p-2 rounded-lg text-white">
+                        <i class="fa-solid fa-business-time text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-lg tracking-tight">PontoSync <span class="text-xs bg-blue-500/30 text-blue-300 font-normal px-2 py-0.5 rounded-full border border-blue-400/30">HR Pro</span></span>
+                        <p class="text-xs text-slate-400">Solução de Fechamento de Ponto & Suporte RH</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="hidden md:flex space-x-1">
+                    <button onclick="switchTab('import-tab')" id="nav-import-tab" class="tab-btn px-4 py-2 rounded-md text-sm font-medium transition-colors bg-blue-600 text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-file-import"></i>
+                        <span>Ajuste de Ponto em Lote</span>
+                    </button>
+                    <button onclick="switchTab('history-tab')" id="nav-history-tab" class="tab-btn px-4 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center space-x-2">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>Histórico & Relatórios</span>
+                    </button>
+                    <button onclick="switchTab('toner-tab')" id="nav-toner-tab" class="tab-btn px-4 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors flex items-center space-x-2">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Controle de Toners</span>
+                        <span class="bg-amber-500/20 text-amber-300 text-xs px-1.5 py-0.5 rounded border border-amber-500/30">Módulo Extra</span>
+                    </button>
+                </nav>
+
+                <!-- User Profile / Context Info -->
+                <div class="flex items-center space-x-3 text-sm">
+                    <div class="text-right hidden sm:block">
+                        <p class="font-medium text-slate-200">Bárbara (RH)</p>
+                        <p class="text-xs text-slate-400">Fechamento do Mês</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center font-bold text-blue-400">
+                        BA
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Bar -->
+        <div class="md:hidden bg-slate-800 px-2 pt-2 pb-3 space-y-1 flex justify-around">
+            <button onclick="switchTab('import-tab')" id="mobile-import-tab" class="mobile-tab-btn flex-1 py-2 text-center text-xs font-medium text-white bg-blue-600 rounded">Ponto em Lote</button>
+            <button onclick="switchTab('history-tab')" id="mobile-history-tab" class="mobile-tab-btn flex-1 py-2 text-center text-xs font-medium text-slate-300 rounded">Histórico</button>
+            <button onclick="switchTab('toner-tab')" id="mobile-toner-tab" class="mobile-tab-btn flex-1 py-2 text-center text-xs font-medium text-slate-300 rounded">Toners</button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- Toast / Notification Bar -->
+        <div id="toast" class="hidden mb-6 p-4 rounded-xl border shadow-sm flex items-start justify-between transition-all duration-300">
+            <div class="flex items-center space-x-3">
+                <i id="toast-icon" class="fa-solid text-xl"></i>
+                <div>
+                    <h4 id="toast-title" class="font-semibold text-sm"></h4>
+                    <p id="toast-desc" class="text-xs mt-0.5 text-slate-600"></p>
+                </div>
+            </div>
+            <button onclick="closeToast()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- ================= TAB 1: AJUSTE DE PONTO EM LOTE (MAIN SOLUTION) ================= -->
+        <section id="import-tab" class="tab-content space-y-6">
+
+            <!-- Welcome / Flow Intro Header -->
+            <div class="bg-gradient-to-r from-blue-900 via-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-lg relative overflow-hidden">
+                <div class="relative z-10 max-w-3xl">
+                    <span class="bg-blue-500/20 text-blue-300 text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full border border-blue-400/30">Otimização de Processos RH</span>
+                    <h1 class="text-2xl sm:text-3xl font-bold mt-2">Lançamento & Ajuste de Ponto em Lote</h1>
+                    <p class="text-slate-300 text-sm mt-2 leading-relaxed">
+                        Elimine o trabalho repetitivo manual de lançar ajustes "um a um" no Ponto Web. Carregue os relatórios de espelho de ponto assinados com justificativas, valide em lote e sincronize direto com o sistema.
+                    </p>
+                </div>
+                <i class="fa-solid fa-clock-rotate-left absolute -right-6 -bottom-6 text-9xl text-white/5 pointer-events-none"></i>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="p-3 bg-amber-50 text-amber-600 rounded-lg">
+                        <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">Inconsistências Pendentes</p>
+                        <p class="text-xl font-bold text-slate-800" id="stat-pending">12 registros</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="p-3 bg-blue-50 text-blue-600 rounded-lg">
+                        <i class="fa-solid fa-file-pdf text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">Relatórios Processados</p>
+                        <p class="text-xl font-bold text-slate-800">28/35 Funcionários</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
+                        <i class="fa-solid fa-bolt text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">Tempo Economizado Hoje</p>
+                        <p class="text-xl font-bold text-emerald-600">~ 2h 40min</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="p-3 bg-purple-50 text-purple-600 rounded-lg">
+                        <i class="fa-solid fa-rotate text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">Status Ponto Web</p>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-800 mt-1">
+                            <span class="w-2 h-2 mr-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Conectado
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 1: Upload Dropzone & Processing -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="flex items-center justify-center w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-xs">1</span>
+                        <h2 class="text-base font-semibold text-slate-800">Importação do Arquivo / PDF com Justificativas</h2>
+                    </div>
+                    <button onclick="loadSampleData()" class="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center space-x-1">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Carregar Exemplo de Teste</span>
+                    </button>
+                </div>
+
+                <div id="drop-zone" class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-8 text-center bg-slate-50 hover:bg-blue-50/50 transition-all cursor-pointer relative">
+                    <input type="file" id="file-input" class="hidden" accept=".pdf,.xlsx,.csv" onchange="handleFileSelect(event)">
+                    <div class="space-y-3 pointer-events-none">
+                        <div class="w-12 h-12 bg-white rounded-full shadow-sm border border-slate-200 flex items-center justify-center mx-auto text-blue-600 text-xl">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-slate-700">Arraste aqui o PDF do Espelho de Ponto ou planilha compilada</p>
+                            <p class="text-xs text-slate-500 mt-1">Suporta relatórios com justificativas assinadas de múltiplos colaboradores (.pdf, .xlsx, .csv)</p>
+                        </div>
+                        <button type="button" class="mt-2 inline-flex items-center px-4 py-2 border border-slate-300 shadow-sm text-xs font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 focus:outline-none">
+                            Selecionar Arquivo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Simulation Processing Indicator -->
+                <div id="processing-loader" class="hidden my-4 p-4 bg-blue-50 border border-blue-200 rounded-xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-blue-900 flex items-center">
+                            <i class="fa-solid fa-spinner animate-spin mr-2"></i> Leitura inteligente e extração de justificativas em andamento...
+                        </span>
+                        <span id="progress-percent" class="text-xs font-bold text-blue-700">0%</span>
+                    </div>
+                    <div class="w-full bg-blue-200 rounded-full h-2 overflow-hidden">
+                        <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Inspection & Batch Action Table -->
+            <div id="review-section" class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="flex items-center justify-center w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-xs">2</span>
+                        <div>
+                            <h2 class="text-base font-semibold text-slate-800">Conferência dos Ajustes Extraídos</h2>
+                            <p class="text-xs text-slate-500">Revise os registros identificados antes de enviar o lote para o Ponto Web</p>
+                        </div>
+                    </div>
+
+                    <!-- Filter / Bulk Actions -->
+                    <div class="flex items-center flex-wrap gap-2">
+                        <div class="relative">
+                            <input type="text" id="search-filter" oninput="renderTable()" placeholder="Buscar colaborador..." class="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none w-48">
+                            <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+                        </div>
+
+                        <select id="status-filter" onchange="renderTable()" class="py-1.5 px-3 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+                            <option value="ALL">Todos os status</option>
+                            <option value="PENDING">Pendentes de Envio</option>
+                            <option value="VALIDATED">Validados / Prontos</option>
+                            <option value="SYNCED">Já Sincronizados</option>
+                        </select>
+
+                        <button onclick="processBatchSync()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium px-4 py-2 rounded-lg shadow-sm transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Enviar Todos Selecionados em Lote</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Content -->
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                            <tr>
+                                <th class="p-3 w-10 text-center">
+                                    <input type="checkbox" id="select-all" onclick="toggleSelectAll(this)" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                                </th>
+                                <th class="p-3">Colaborador / RE</th>
+                                <th class="p-3">Data Exceção</th>
+                                <th class="p-3">Horário Solicitado</th>
+                                <th class="p-3">Tipo / Evento</th>
+                                <th class="p-3">Justificativa Anexada</th>
+                                <th class="p-3 text-center">Status</th>
+                                <th class="p-3 text-center">Ação Manual</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adjustment-table-body" class="divide-y divide-slate-100 text-slate-700">
+                            <!-- Rows injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Footer Info -->
+                <div class="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-2">
+                    <span id="showing-count">Exibindo 0 registros</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-block w-3 h-3 bg-amber-100 border border-amber-300 rounded-full"></span>
+                        <span>Requer Validação</span>
+                        <span class="inline-block w-3 h-3 bg-emerald-100 border border-emerald-300 rounded-full ml-2"></span>
+                        <span>Pronto p/ Lote</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================= TAB 2: HISTÓRICO & RELATÓRIOS ================= -->
+        <section id="history-tab" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                <h2 class="text-lg font-bold text-slate-800 mb-2">Histórico de Lançamentos em Lote</h2>
+                <p class="text-xs text-slate-500 mb-6">Registro auditável de todas as sincronizações diretas executadas no Ponto Web.</p>
+
+                <div class="space-y-4">
+                    <!-- History Item 1 -->
+                    <div class="border border-slate-200 rounded-xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-blue-200 transition-colors">
+                        <div class="flex items-start space-x-3">
+                            <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-lg mt-0.5">
+                                <i class="fa-solid fa-circle-check text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-slate-800 text-sm">Lançamento em Lote #2026-10-18</h3>
+                                <p class="text-xs text-slate-500">Executado por Bárbara em 18/10/2026 às 16:45</p>
+                                <div class="flex items-center space-x-2 mt-2">
+                                    <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[11px]">18 itens processados</span>
+                                    <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[11px] font-medium">100% Sucesso</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="showToast('info', 'Relatório Baixado', 'O espelho e protocolo de lote foram salvos.')" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center space-x-1">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Comprovante PDF</span>
+                        </button>
+                    </div>
+
+                    <!-- History Item 2 -->
+                    <div class="border border-slate-200 rounded-xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-blue-200 transition-colors">
+                        <div class="flex items-start space-x-3">
+                            <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-lg mt-0.5">
+                                <i class="fa-solid fa-circle-check text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-slate-800 text-sm">Lançamento em Lote #2026-10-15</h3>
+                                <p class="text-xs text-slate-500">Executado por Bárbara em 15/10/2026 às 11:20</p>
+                                <div class="flex items-center space-x-2 mt-2">
+                                    <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[11px]">24 itens processados</span>
+                                    <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[11px] font-medium">100% Sucesso</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="showToast('info', 'Relatório Baixado', 'O espelho e protocolo de lote foram salvos.')" class="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center space-x-1">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Comprovante PDF</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: CONTROLE DE EMPRÉSTIMO DE TONER (BONUS FEATURE) ================= -->
+        <section id="toner-tab" class="tab-content hidden space-y-6">
+
+            <!-- Intro Header Toner -->
+            <div class="bg-slate-800 text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <span class="bg-amber-500/20 text-amber-300 text-xs font-semibold px-2.5 py-0.5 rounded border border-amber-400/30">Módulo Auxiliar RH / Contas</span>
+                    <h2 class="text-xl font-bold mt-1">Rastreio de Estoque e Empréstimo de Toners</h2>
+                    <p class="text-xs text-slate-300 mt-1">Evite desaparecimentos e saiba exatamente qual setor pegou toner emprestado do armário do RH.</p>
+                </div>
+                <button onclick="openTonerModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-4 py-2 rounded-lg text-xs transition-all shadow flex items-center space-x-2">
+                    <i class="fa-solid fa-hand-holding-hand"></i>
+                    <span>Registrar Novo Empréstimo</span>
+                </button>
+            </div>
+
+            <!-- Inventory Summary Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-medium text-slate-500">Toner HP Black 85A</span>
+                        <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded font-bold">3 em estoque</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">1 emprestado p/ Secretaria</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-medium text-slate-500">Toner Samsung MLT-D111S</span>
+                        <span class="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded font-bold">1 em estoque</span>
+                    </div>
+                    <p class="text-xs text-amber-600 mt-2 font-medium"><i class="fa-solid fa-triangle-exclamation"></i> Requisitar compra em breve</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-medium text-slate-500">Toner Brother TN-660</span>
+                        <span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded font-bold">0 em estoque</span>
+                    </div>
+                    <p class="text-xs text-red-500 mt-2 font-medium">Aguardando requisição do Almoxarifado</p>
+                </div>
+            </div>
+
+            <!-- Active Borrowings Table -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="font-bold text-sm text-slate-800">Empréstimos Ativos de Toners</h3>
+                    <span class="text-xs text-slate-500">Registros do Armário do RH</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 text-slate-600 border-b border-slate-200 font-semibold">
+                            <tr>
+                                <th class="p-3">Data/Hora</th>
+                                <th class="p-3">Modelo de Toner</th>
+                                <th class="p-3">Setor Solicitante</th>
+                                <th class="p-3">Retirado Por</th>
+                                <th class="p-3">Autorizado Por (RH)</th>
+                                <th class="p-3 text-center">Status</th>
+                                <th class="p-3 text-center">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="toner-table-body" class="divide-y divide-slate-100 text-slate-700">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- MODAL: Edit Justification / Entry -->
+    <div id="edit-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-slate-800 text-base">Ajustar Registro Ponto</h3>
+                <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-600 font-medium mb-1">Colaborador</label>
+                    <input type="text" id="modal-employee" readonly class="w-full bg-slate-100 border border-slate-300 rounded-lg p-2 font-semibold">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-slate-600 font-medium mb-1">Data</label>
+                        <input type="text" id="modal-date" readonly class="w-full bg-slate-100 border border-slate-300 rounded-lg p-2">
+                    </div>
+                    <div>
+                        <label class="block text-slate-600 font-medium mb-1">Tipo Evento</label>
+                        <select id="modal-type" class="w-full border border-slate-300 rounded-lg p-2 bg-white">
+                            <option value="Entrada Não Registrada">Entrada Não Registrada</option>
+                            <option value="Saída Não Registrada">Saída Não Registrada</option>
+                            <option value="Atestado Médico">Atestado Médico</option>
+                            <option value="Trabalho Externo">Trabalho Externo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-600 font-medium mb-1">Horário Correto / Lançamento</label>
+                    <input type="time" id="modal-time" class="w-full border border-slate-300 rounded-lg p-2">
+                </div>
+
+                <div>
+                    <label class="block text-slate-600 font-medium mb-1">Justificativa / Observação</label>
+                    <textarea id="modal-reason" rows="3" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Motivo apresentado pelo funcionário..."></textarea>
+                </div>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeEditModal()" class="flex-1 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50">Cancelar</button>
+                <button onclick="saveModalEdit()" class="flex-1 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 shadow-sm">Salvar Alteração</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Borrow Toner -->
+    <div id="toner-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-slate-800 text-base">Registrar Empréstimo de Toner</h3>
+                <button onclick="closeTonerModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-600 font-medium mb-1">Modelo de Toner</label>
+                    <select id="toner-model" class="w-full border border-slate-300 rounded-lg p-2 bg-white">
+                        <option value="HP LaserJet 85A (Preto)">HP LaserJet 85A (Preto)</option>
+                        <option value="Samsung MLT-D111S">Samsung MLT-D111S</option>
+                        <option value="Brother TN-660">Brother TN-660</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-slate-600 font-medium mb-1">Setor Solicitante</label>
+                    <select id="toner-dept" class="w-full border border-slate-300 rounded-lg p-2 bg-white">
+                        <option value="Secretaria Acadêmica">Secretaria Acadêmica</option>
+                        <option value="Financeiro / Cobrança">Financeiro / Cobrança</option>
+                        <option value="Coordenação Pedagógica">Coordenação Pedagógica</option>
+                        <option value="Atendimento ao Aluno">Atendimento ao Aluno</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-slate-600 font-medium mb-1">Nome de Quem Veio Retirar</label>
+                    <input type="text" id="toner-person" placeholder="Ex: Carlos Andrade" class="w-full border border-slate-300 rounded-lg p-2">
+                </div>
+
+                <div>
+                    <label class="block text-slate-600 font-medium mb-1">Responsável RH que Entregou</label>
+                    <input type="text" id="toner-rh" value="Bárbara (RH)" readonly class="w-full bg-slate-100 border border-slate-300 rounded-lg p-2 font-semibold">
+                </div>
+            </div>
+
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeTonerModal()" class="flex-1 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50">Cancelar</button>
+                <button onclick="saveTonerBorrow()" class="flex-1 py-2 bg-amber-500 text-slate-900 rounded-lg text-xs font-semibold hover:bg-amber-600 shadow-sm">Confirmar Saída</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample State Data
+        let timeAdjustments = [
+            {
+                id: 101,
+                employee: "Carlos Eduardo Silva",
+                re: "RE-4092",
+                date: "14/10/2026",
+                requestedTime: "08:02 (Entrada)",
+                type: "Entrada Não Registrada",
+                reason: "Esquecimento no leitor biométrico da portaria principal.",
+                status: "VALIDATED", // PENDING, VALIDATED, SYNCED
+                selected: true
+            },
+            {
+                id: 102,
+                employee: "Mariana Costa Lima",
+                re: "RE-3105",
+                date: "15/10/2026",
+                requestedTime: "17:30 (Saída)",
+                type: "Saída Não Registrada",
+                reason: "Ponto fora do ar na saída. Assinado no formulário impresso.",
+                status: "VALIDATED",
+                selected: true
+            },
+            {
+                id: 103,
+                employee: "João Pedro Santos",
+                re: "RE-5821",
+                date: "16/10/2026",
+                requestedTime: "08:00 às 12:00",
+                type: "Atestado Médico",
+                reason: "Consulta médica dermatológica com comprovante anexo.",
+                status: "PENDING",
+                selected: false
+            },
+            {
+                id: 104,
+                employee: "Ana Paula Machado",
+                re: "RE-1198",
+                date: "16/10/2026",
+                requestedTime: "14:15 (Entrada)",
+                type: "Trabalho Externo",
+                reason: "Visita externa técnica a fornecedores de TI.",
+                status: "VALIDATED",
+                selected: true
+            },
+            {
+                id: 105,
+                employee: "Roberto Ferreira",
+                re: "RE-2940",
+                date: "17/10/2026",
+                requestedTime: "18:00 (Saída)",
+                type: "Saída Não Registrada",
+                reason: "Catraca sem conexão de rede.",
+                status: "SYNCED",
+                selected: false
+            }
+        ];
+
+        let tonerLoans = [
+            {
+                id: 1,
+                date: "19/10/2026 10:15",
+                model: "HP LaserJet 85A (Preto)",
+                dept: "Secretaria Acadêmica",
+                person: "Marcos Oliveira",
+                rhPerson: "Bárbara (RH)",
+                status: "EMPRESTADO"
+            },
+            {
+                id: 2,
+                date: "18/10/2026 14:30",
+                model: "Samsung MLT-D111S",
+                dept: "Financeiro / Cobrança",
+                person: "Luciana Prado",
+                rhPerson: "Bárbara (RH)",
+                status: "DEVOLVIDO"
+            }
+        ];
+
+        let activeEditId = null;
+
+        // On Page Load Initialization
+        window.onload = function() {
+            renderTable();
+            renderTonerTable();
+        };
+
+        // Tab Navigation Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            // Update Nav styles desktop
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('text-slate-300');
+            });
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeNav) {
+                activeNav.classList.add('bg-blue-600', 'text-white');
+                activeNav.classList.remove('text-slate-300');
+            }
+
+            // Update Nav styles mobile
+            document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('text-slate-300');
+            });
+            const activeMobileNav = document.getElementById('mobile-' + tabId);
+            if (activeMobileNav) {
+                activeMobileNav.classList.add('bg-blue-600', 'text-white');
+                activeMobileNav.classList.remove('text-slate-300');
+            }
+        }
+
+        // Render Adjustment Table
+        function renderTable() {
+            const tbody = document.getElementById('adjustment-table-body');
+            const search = document.getElementById('search-filter').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+
+            tbody.innerHTML = '';
+
+            let filtered = timeAdjustments.filter(item => {
+                const matchesSearch = item.employee.toLowerCase().includes(search) || item.re.toLowerCase().includes(search);
+                const matchesStatus = statusFilter === 'ALL' || item.status === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+
+            document.getElementById('showing-count').innerText = `Exibindo ${filtered.length} de ${timeAdjustments.length} registros`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-8 text-slate-400">
+                            <i class="fa-regular fa-folder-open text-2xl mb-2"></i>
+                            <p>Nenhum ajuste encontrado com os filtros selecionados.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors';
+
+                // Status Badge styling
+                let statusBadge = '';
+                if (item.status === 'PENDING') {
+                    statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200"><i class="fa-solid fa-clock text-[9px] mr-1"></i>Pendente</span>`;
+                } else if (item.status === 'VALIDATED') {
+                    statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200"><i class="fa-solid fa-check text-[9px] mr-1"></i>Pronto p/ Lote</span>`;
+                } else if (item.status === 'SYNCED') {
+                    statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200"><i class="fa-solid fa-cloud-check text-[9px] mr-1"></i>Sincronizado</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="p-3 text-center">
+                        <input type="checkbox" ${item.selected ? 'checked' : ''} ${item.status === 'SYNCED' ? 'disabled' : ''} onchange="toggleSelect(${item.id}, this.checked)" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                    </td>
+                    <td class="p-3">
+                        <div class="font-semibold text-slate-800">${item.employee}</div>
+                        <div class="text-[11px] text-slate-400">${item.re}</div>
+                    </td>
+                    <td class="p-3 font-medium">${item.date}</td>
+                    <td class="p-3 font-semibold text-blue-700">${item.requestedTime}</td>
+                    <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px]">${item.type}</span></td>
+                    <td class="p-3 max-w-xs truncate text-slate-600" title="${item.reason}">${item.reason}</td>
+                    <td class="p-3 text-center">${statusBadge}</td>
+                    <td class="p-3 text-center space-x-1">
+                        <button onclick="openEditModal(${item.id})" ${item.status === 'SYNCED' ? 'disabled class="opacity-40 cursor-not-allowed text-slate-400"' : 'class="text-blue-600 hover:text-blue-800 p-1.5 rounded hover:bg-blue-50"'} title="Editar Justificativa">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="deleteItem(${item.id})" ${item.status === 'SYNCED' ? 'disabled class="opacity-40 cursor-not-allowed text-slate-400"' : 'class="text-red-500 hover:text-red-700 p-1.5 rounded hover:bg-red-50"'} title="Remover">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Toggle Single Checkbox
+        function toggleSelect(id, checked) {
+            const item = timeAdjustments.find(i => i.id === id);
+            if (item) item.selected = checked;
+        }
+
+        // Toggle Select All
+        function toggleSelectAll(master) {
+            timeAdjustments.forEach(item => {
+                if (item.status !== 'SYNCED') {
+                    item.selected = master.checked;
+                }
+            });
+            renderTable();
+        }
+
+        // File Drag & Drop Handling Simulation
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                simulateFileProcessing(file.name);
+            }
+        }
+
+        function loadSampleData() {
+            simulateFileProcessing("Relatorio_Ajustes_Ponto_Outubro.pdf");
+        }
+
+        function simulateFileProcessing(fileName) {
+            const loader = document.getElementById('processing-loader');
+            const progressBar = document.getElementById('progress-bar');
+            const progressPercent = document.getElementById('progress-percent');
+
+            loader.classList.remove('hidden');
+            let progress = 0;
+
+            const interval = setInterval(() => {
+                progress += 20;
+                progressBar.style.width = progress + '%';
+                progressPercent.innerText = progress + '%';
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        loader.classList.add('hidden');
+                        showToast('success', 'Arquivo Processado com Sucesso!', `O relatório "${fileName}" foi lido e 5 novas inconsistências com justificativas foram adicionadas.`);
+                        renderTable();
+                    }, 400);
+                }
+            }, 180);
+        }
+
+        // Execute Batch Sync into Ponto Web System
+        function processBatchSync() {
+            const selectedItems = timeAdjustments.filter(i => i.selected && i.status !== 'SYNCED');
+
+            if (selectedItems.length === 0) {
+                showToast('warning', 'Nenhum item selecionado', 'Selecione ao menos um ajuste pronto na tabela para enviar em lote.');
+                return;
+            }
+
+            // Perform Batch Sync Animation
+            selectedItems.forEach(item => {
+                item.status = 'SYNCED';
+                item.selected = false;
+            });
+
+            renderTable();
+            showToast('success', 'Lançamento em Lote Concluído!', `Foram enviados ${selectedItems.length} lançamentos diretamente para o sistema Ponto Web de forma automatizada.`);
+        }
+
+        // Open Modal to Edit Justification/Time
+        function openEditModal(id) {
+            const item = timeAdjustments.find(i => i.id === id);
+            if (!item) return;
+
+            activeEditId = id;
+            document.getElementById('modal-employee').value = item.employee + " (" + item.re + ")";
+            document.getElementById('modal-date').value = item.date;
+            document.getElementById('modal-type').value = item.type;
+            document.getElementById('modal-time').value = item.requestedTime.split(' ')[0] || "08:00";
+            document.getElementById('modal-reason').value = item.reason;
+
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+            activeEditId = null;
+        }
+
+        function saveModalEdit() {
+            if (!activeEditId) return;
+
+            const item = timeAdjustments.find(i => i.id === activeEditId);
+            if (item) {
+                item.type = document.getElementById('modal-type').value;
+                item.requestedTime = document.getElementById('modal-time').value + " (" + item.type.split(' ')[0] + ")";
+                item.reason = document.getElementById('modal-reason').value;
+                item.status = 'VALIDATED'; // Upgrade to validated state on manual check
+            }
+
+            closeEditModal();
+            renderTable();
+            showToast('info', 'Ajuste Atualizado', 'As alterações da justificativa foram salvas e validadas.');
+        }
+
+        function deleteItem(id) {
+            timeAdjustments = timeAdjustments.filter(i => i.id !== id);
+            renderTable();
+            showToast('info', 'Item Removido', 'O registro de ajuste foi removido da fila de envio.');
+        }
+
+        // Toner Functions
+        function renderTonerTable() {
+            const tbody = document.getElementById('toner-table-body');
+            tbody.innerHTML = '';
+
+            tonerLoans.forEach(loan => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors';
+
+                const statusTag = loan.status === 'EMPRESTADO' 
+                    ? `<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold text-[10px]">Emprestado</span>`
+                    : `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold text-[10px]">Devolvido</span>`;
+
+                const actionBtn = loan.status === 'EMPRESTADO'
+                    ? `<button onclick="returnToner(${loan.id})" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded shadow-sm">Dar Baixa / Devolver</button>`
+                    : `<span class="text-slate-400 text-[11px]">Finalizado</span>`;
+
+                tr.innerHTML = `
+                    <td class="p-3 text-slate-500 font-medium">${loan.date}</td>
+                    <td class="p-3 font-semibold text-slate-800">${loan.model}</td>
+                    <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded">${loan.dept}</span></td>
+                    <td class="p-3 font-medium">${loan.person}</td>
+                    <td class="p-3 text-slate-500">${loan.rhPerson}</td>
+                    <td class="p-3 text-center">${statusTag}</td>
+                    <td class="p-3 text-center">${actionBtn}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openTonerModal() {
+            document.getElementById('toner-modal').classList.remove('hidden');
+        }
+
+        function closeTonerModal() {
+            document.getElementById('toner-modal').classList.add('hidden');
+        }
+
+        function saveTonerBorrow() {
+            const model = document.getElementById('toner-model').value;
+            const dept = document.getElementById('toner-dept').value;
+            const person = document.getElementById('toner-person').value.trim();
+
+            if (!person) {
+                showToast('warning', 'Nome Obrigatório', 'Por favor informe o nome da pessoa que está retirando o toner.');
+                return;
+            }
+
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+
+            tonerLoans.unshift({
+                id: Date.now(),
+                date: dateStr,
+                model: model,
+                dept: dept,
+                person: person,
+                rhPerson: "Bárbara (RH)",
+                status: "EMPRESTADO"
+            });
+
+            closeTonerModal();
+            renderTonerTable();
+            showToast('success', 'Empréstimo Registrado!', `Toner cedido para ${dept} (${person}). Rastreabilidade garantida!`);
+            document.getElementById('toner-person').value = '';
+        }
+
+        function returnToner(id) {
+            const loan = tonerLoans.find(l => l.id === id);
+            if (loan) {
+                loan.status = 'DEVOLVIDO';
+                renderTonerTable();
+                showToast('info', 'Devolução Registrada', 'O toner retornou ou foi reposto no estoque do RH.');
+            }
+        }
+
+        // Toast Helper
+        function showToast(type, title, message) {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const titleEl = document.getElementById('toast-title');
+            const descEl = document.getElementById('toast-desc');
+
+            toast.className = "mb-6 p-4 rounded-xl border shadow-sm flex items-start justify-between transition-all duration-300 ";
+
+            if (type === 'success') {
+                toast.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-900');
+                icon.className = "fa-solid fa-circle-check text-emerald-600 text-xl";
+            } else if (type === 'warning') {
+                toast.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-900');
+                icon.className = "fa-solid fa-triangle-exclamation text-amber-600 text-xl";
+            } else {
+                toast.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-900');
+                icon.className = "fa-solid fa-circle-info text-blue-600 text-xl";
+            }
+
+            titleEl.innerText = title;
+            descEl.innerText = message;
+            toast.classList.remove('hidden');
+
+            setTimeout(() => {
+                closeToast();
+            }, 6000);
+        }
+
+        function closeToast() {
+            document.getElementById('toast').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

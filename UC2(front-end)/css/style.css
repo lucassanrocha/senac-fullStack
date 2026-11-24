@@ -1,0 +1,81 @@
+body{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h1 {
+    color: #EA4E60;
+    font-size: 96px;
+}
+.propriedade {
+    font-size: 60px;
+   padding: 24px 110px;
+    background-color: #EA4E60;
+    color: white;
+    border-radius: 15px;
+}
+p{
+    font-size: 48px;
+    font-weight: 1;
+}
+
+#bloco{
+    background-color: rgb(10, 10, 10);
+    width: 25rem;
+    height: 6.25rem;
+    border-radius: 15px;
+}
+
+ol {
+    /* list-style-type: none; */
+    color: rgba(255, 255, 255, 0.568);
+}
+
+.samp {
+   
+    width: 10px;
+    height: 10px;
+    border-radius: 100%;
+    margin-right: 10px;
+}
+
+span {
+    display: flex;
+    flex-direction: row;
+    margin: .5rem;
+    padding: 5px;
+}
+
+.txtCorEstranha{
+    color: purple;
+}
+
+
+
+
+#primeiraBolinha {
+ background-color: red; 
+ animation: slideDown  1s linear infinite;  
+ animation-delay: 0.75s;
+}
+
+#segundaBolinha {
+    background-color: rgb(255, 166, 0);
+    animation: slideDown  1s linear infinite; 
+    animation-delay: 0.5s;
+}
+#terceiraBolinha {
+    background-color: rgb(0, 255, 55);
+    animation: slideDown 1s  linear infinite; 
+    
+}
+
+@keyframes slideDown {
+   0% { transform: translateY(0); }
+50% { transform: translateY(-8px); }
+100% { transform: translateY(0); }
+}

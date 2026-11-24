@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br
+<head>
+    <meta charset=" UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- =====REMIXICON======= -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css">
+
+<!-- =====CSS======= -->
+<link rel="stylesheet" href="assets/css/login.css">
+
+<!-- =====Java Script======= -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<script  src="assets/js/login.js" defer></script>
+<script  src="assets/js/firebase-config.js" defer></script>
+
+
+
+<title>Login</title>
+
+</head>
+
+<body>
+    <main class="login">
+
+        <img src="assets/images/fundo2.gif" alt="" class="login__img">
+
+        <form action="" class="login__form" id="login-form">
+            <h1 class="login__title">Login</h1>
+
+            <div class="login__content">
+
+                <div class="login__box">
+
+                    <i class="ri-user-line login__icon"></i>
+
+                    <div class="login__box-input">
+                        <input type="email" id="login-email" class="login__input" required placeholder="">
+                        <label for="login-email" class="login__label">E-mail</label>
+                    </div>
+
+                </div>
+
+                <div class="login__box">
+
+                    <i class="ri-lock-line login__icon"></i>
+
+                    <div class="login__box-passoword">
+                        <input type="password" id="login-pass" class="login__input" required placeholder="">
+                        <label for="login-pass" class="login__label">Passoword</label>
+                        
+                    </div>
+                    <i class="ri-eye-off-line login__eye" id="login-eye"></i>
+                </div>
+
+                <div class="login__check">
+                    <div class="login__check-group">
+
+                        <input type="checkbox" id="login-check" class="login__check-input">
+                        <label for="login-check" class="login-check-label">Remember me</label>
+                    </div>
+
+                    <a href="pages/recupera.html" class="login__forgot">Forgot Passoword</a>
+                </div>
+
+                <button type="submit" class="login__button">Login</button>
+
+                <button id="google-login" class="login__button">
+                    <i class="ri-google-fill"></i>
+                    Entrar com Google
+                </button>
+
+               
+                <p class="login__resgister">
+                    Don't have an acconut?
+                    <a href="pages/cadastro.html">Register</a>
+                </p>
+            </div>
+
+        </form>
+    </main>
+
+</body>
+<script src="assets/js/register.js" defer></script>
+</html>
