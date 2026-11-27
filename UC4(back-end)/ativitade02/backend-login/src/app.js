@@ -13,7 +13,7 @@ apps.use(routes)
 apps.get('/', (req,res) => res.json({msg : 'Backend '}))
 
 
-apps.get('/api/perfil', login,(req,res) => res.json({msg : 'voce esta logado ', id : req.usuarioID}) )
+apps.get('/api/perfil', login,(req,res) => res.json({msg : 'voce esta logado ', id : req.usuarioId}) )
 
 
 

@@ -6,10 +6,12 @@ import { json } from 'express';
 
 export const login = (req, res, next) => {
 
-    const token = req.headers.authorization
+    const authorization = req.headers.authorization
 
-    if (!token) return res.status(401).json({ msg: "Sem Token" })
-        
+    if (!authorization || !authorization.startsWith('Bearer')) return res.status(401).json({ msg: "Sem Token" })
+        const token = authorization.slice(7)
+
+
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET )
 
@@ -21,8 +23,9 @@ export const login = (req, res, next) => {
         } catch (error) {
             return res.status(401).json({ msg: "Token Invalido" })
         }
-
 };
+
+
 // // Requisisao simulada com o tokem gerado do arquivo 
 // const requisicaoTeste = {
 //     headers: {
